@@ -3,6 +3,7 @@ package com.usmani.websocket;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -20,6 +21,8 @@ public class WebSocketClient {
     private Map<String,Object> properties=new HashMap<>();
     
     private WebSocketEventListener listener;
+    
+    private long lastReceiveTimestamp;
 
     public WebSocketClient(Socket s) {
         this.socket = s;
@@ -45,6 +48,10 @@ public class WebSocketClient {
     
     public ClientState getState() {
     	return this.state;
+    }
+    
+    public long getLastReceiveTimestamp() {
+    	return lastReceiveTimestamp;
     }
     
     public Object get(String key) {
@@ -85,6 +92,7 @@ public class WebSocketClient {
     		while(true) {
     			try {
     				WebSocketFrame frame=WebSocketFrameReader.read(iStream);
+    				lastReceiveTimestamp=new Date().getTime();
     				onFrame(frame);
     			}catch(Exception ex) {
     				ex.printStackTrace();
@@ -115,6 +123,7 @@ public class WebSocketClient {
     	}
     	HandshakeRequest request=HandshakeRequest.create(requestStr);
     	Log.d(TAG, "handshake request created");
+    	lastReceiveTimestamp=new Date().getTime();
     	HandshakeResponse response=HandshakeResponse.create(request);
 		String str=response.toHttpFormat();
 		write(str.getBytes());
