@@ -28,6 +28,7 @@ public class WebSocketClient {
         this.socket = s;
         this.state = ClientState.INITIALIZED;
         this.clientId=UUID.randomUUID().toString();
+        this.lastReceiveTimestamp=new Date().getTime();
     }
     
     public void setWebSocketEventListener(WebSocketEventListener l) {
@@ -52,6 +53,17 @@ public class WebSocketClient {
     
     public long getLastReceiveTimestamp() {
     	return lastReceiveTimestamp;
+    }
+    
+    public boolean hasNotReceivedFor(long ms) {
+    	long currTimestamp=new Date().getTime();
+    	return (currTimestamp-lastReceiveTimestamp)>ms;
+    }
+    
+    public void timeout() {
+    	try {
+    		socket.close();
+    	}catch(Exception ex) {}
     }
     
     public Object get(String key) {

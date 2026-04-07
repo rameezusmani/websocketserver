@@ -1,6 +1,8 @@
 package com.usmani.websocket;
 
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class WebSocketServerDemo {
 	
@@ -15,6 +17,21 @@ public class WebSocketServerDemo {
 	public void demo() {
 		
 		HashMap<String,WebSocketClient> clientsMap=new HashMap<>();
+		long timeoutMilliseconds=1000*10; //10 seconds timeout
+		Timer timeoutCheckTimer=new Timer();
+		timeoutCheckTimer.scheduleAtFixedRate(new TimerTask() {	
+			@Override
+			public void run() {
+				clientsMap.forEach((key,client)->{
+					if (client.hasNotReceivedFor(timeoutMilliseconds)) {
+						//this client instance has not received any data for timeoutMilliseconds
+						//close it
+						Log.d(TAG,client.getId()+" timed out");
+						client.timeout();
+					}
+				});
+			}
+		},5000,5000); //5 seconds timer to check the clients timeout
 		
 		try {
         	WebSocketServer server=new WebSocketServer();
@@ -50,10 +67,11 @@ public class WebSocketServerDemo {
         	server.start();
         	System.in.read();
         	server.stop();
-        	clientsMap.clear();
         }catch(Exception ex) {
         	ex.printStackTrace();
         	Log.e(TAG,"Exception: "+ex.getMessage());
         }
+		timeoutCheckTimer.cancel();
+		clientsMap.clear();
 	}
 }
