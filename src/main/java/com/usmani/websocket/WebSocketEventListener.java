@@ -2,6 +2,7 @@ package com.usmani.websocket;
 
 public interface WebSocketEventListener {
 	public void onOpen(WebSocketClient client);
+	public boolean onHandshakeRequest(WebSocketClient client,HandshakeRequest request);
 	public void onHandshake(WebSocketClient client,HandshakeRequest request,HandshakeResponse response);
 	public void onMessage(WebSocketClient client,WebSocketFrame frame);
 	public void onError(WebSocketClient client,String err);

@@ -36,6 +36,18 @@ public class HandshakeRequest extends HandshakeMessage {
 		if (!request.hasWebSocketKey()) {
 			throw new Exception("Header '"+HEADER_SEC_WEBSOCKET_KEY+"' not found");
 		}
+//		if (!request.has(HEADER_CONNECTION)) {
+//			throw new Exception("Header '"+HEADER_CONNECTION+"' not found");
+//		}
+//		if (request.get(HEADER_CONNECTION).toLowerCase().compareTo("upgrade")!=0) {
+//			throw new Exception ("Header '"+HEADER_CONNECTION+"' has invalid value '"+request.get(HEADER_CONNECTION)+"'");
+//		}
+//		if (!request.has(HEADER_UPGRADE)) {
+//			throw new Exception("Header '"+HEADER_UPGRADE+"' not found");
+//		}
+//		if (request.get(HEADER_UPGRADE).toLowerCase().compareTo("websocket")!=0) {
+//			throw new Exception ("Header '"+HEADER_UPGRADE+"' has invalid value '"+request.get(HEADER_UPGRADE)+"'");
+//		}
 		return request;
 	}
 	

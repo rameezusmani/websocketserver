@@ -84,15 +84,20 @@ public class WebSocketClient {
 
     public void open() 
     	throws Exception {
+    	socket.setSoTimeout(10000);//10 seconds timeout
     	iStream = socket.getInputStream();
 		oStream = socket.getOutputStream();
 		if (listener!=null) {
 			listener.onOpen(this);
 		}
-    	Thread thr=new Thread(()->{
+    	Thread.ofVirtual().start(()->{
     		this.state=ClientState.HANDSHAKE;
     		try {
-    			performHandshake();
+    			if (!performHandshake()) {
+    				onError("performHandshake returned false");
+    				close();
+    				return;
+    			}
     		}catch(Exception ex) {
     			ex.printStackTrace();
     			onError("Error in performHandshake: "+ex.getMessage());
@@ -114,10 +119,9 @@ public class WebSocketClient {
     			}
     		}
     	});
-    	thr.start();
     }
     
-    private void performHandshake() 
+    private boolean performHandshake() 
     		throws Exception {
     	String requestStr="";
     	byte[] buff=new byte[1024];
@@ -136,6 +140,21 @@ public class WebSocketClient {
     	HandshakeRequest request=HandshakeRequest.create(requestStr);
     	Log.d(TAG, "handshake request created");
     	lastReceiveTimestamp=new Date().getTime();
+    	//check for headers and values
+    	String header=request.get(HandshakeMessage.HEADER_CONNECTION);
+    	if (header==null || !header.equalsIgnoreCase("upgrade")){
+    		return false;
+    	}
+    	header=request.get(HandshakeMessage.HEADER_UPGRADE);
+    	if (header==null || !header.equalsIgnoreCase("websocket")) {
+    		return false;
+    	}
+    	if (listener!=null) {
+    		boolean b=listener.onHandshakeRequest(this, request);
+    		if (!b) {
+    			return false;
+    		}
+    	}
     	HandshakeResponse response=HandshakeResponse.create(request);
 		String str=response.toHttpFormat();
 		write(str.getBytes());
@@ -143,6 +162,7 @@ public class WebSocketClient {
 		if (listener!=null) {
 			listener.onHandshake(this,request,response);
 		}
+		return true;
     }
     
     protected void onFrame(WebSocketFrame frame) {

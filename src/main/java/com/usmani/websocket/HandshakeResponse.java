@@ -17,8 +17,8 @@ public class HandshakeResponse extends HandshakeMessage {
 		HandshakeResponse response=new HandshakeResponse();
 		response.statusCode="101";
 		response.statusText="Switching Protocols";
-		response.set(HEADER_UPGRADE, "websocket");
 		response.set(HEADER_CONNECTION, "upgrade");
+		response.set(HEADER_UPGRADE, "websocket");
 		response.set(HEADER_SEC_WEBSOCKET_ACCEPT, generateAcceptKey(request.webSocketKey));
 		return response;
 	}

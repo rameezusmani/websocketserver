@@ -17,21 +17,21 @@ public class WebSocketServerDemo {
 	public void demo() {
 		
 		HashMap<String,WebSocketClient> clientsMap=new HashMap<>();
-		long timeoutMilliseconds=1000*10; //10 seconds timeout
-		Timer timeoutCheckTimer=new Timer();
-		timeoutCheckTimer.scheduleAtFixedRate(new TimerTask() {	
-			@Override
-			public void run() {
-				clientsMap.forEach((key,client)->{
-					if (client.hasNotReceivedFor(timeoutMilliseconds)) {
-						//this client instance has not received any data for timeoutMilliseconds
-						//close it
-						Log.d(TAG,client.getId()+" timed out");
-						client.timeout();
-					}
-				});
-			}
-		},5000,5000); //5 seconds timer to check the clients timeout
+//		long timeoutMilliseconds=1000*10; //10 seconds timeout
+//		Timer timeoutCheckTimer=new Timer();
+//		timeoutCheckTimer.scheduleAtFixedRate(new TimerTask() {	
+//			@Override
+//			public void run() {
+//				clientsMap.forEach((key,client)->{
+//					if (client.hasNotReceivedFor(timeoutMilliseconds)) {
+//						//this client instance has not received any data for timeoutMilliseconds
+//						//close it
+//						Log.d(TAG,client.getId()+" timed out");
+//						client.timeout();
+//					}
+//				});
+//			}
+//		},5000,5000); //5 seconds timer to check the clients timeout
 		
 		try {
         	WebSocketServer server=new WebSocketServer();
@@ -40,6 +40,15 @@ public class WebSocketServerDemo {
 				public void onOpen(WebSocketClient client) {
 					Log.d(TAG, "onOpen: "+client.getId());
 					clientsMap.put(client.getId(), client);
+				}
+				
+				@Override
+				public boolean onHandshakeRequest(WebSocketClient client, HandshakeRequest request) {
+					Log.d(TAG, "onHandshakeRequest: "+client.getId()+"::"+request.uri);
+					if (request.uri.startsWith("/wrong")) {
+						return false;
+					}
+					return true;
 				}
 
 				@Override
@@ -71,7 +80,7 @@ public class WebSocketServerDemo {
         	ex.printStackTrace();
         	Log.e(TAG,"Exception: "+ex.getMessage());
         }
-		timeoutCheckTimer.cancel();
+//		timeoutCheckTimer.cancel();
 		clientsMap.clear();
 	}
 }

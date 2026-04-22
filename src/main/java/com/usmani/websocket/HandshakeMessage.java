@@ -9,6 +9,7 @@ public abstract class HandshakeMessage {
 	public static final String HEADER_SEC_WEBSOCKET_KEY="Sec-WebSocket-Key";
 	public static final String HEADER_SEC_WEBSOCKET_VERSION="Sec-WebSocket-Version";
 	public static final String HEADER_SEC_WEBSOCKET_ACCEPT="Sec-WebSocket-Accept";
+	public static final String HEADER_ORIGIN="Origin";
 	
 	protected HashMap<String,String> headers=new HashMap<>();
 	
